@@ -25,7 +25,7 @@ try:
     if my_args.event_action:
         edgerc_data = generic.edgerc_reader(configfile=my_args.credentials_file,
                               configsection=my_args.credentials_file_section,
-                              configvalues=["ln_token","ln_hostname"])
+                              configvalues=["linode_token","linode_hostname"])
 except:
     print(f"Try akamai-ln --help")
     sys.exit()

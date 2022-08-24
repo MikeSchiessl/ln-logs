@@ -25,7 +25,7 @@ def audit(given_args=None, ln_edgerc=None):
 
 
         my_headers = {
-            'Authorization': 'Bearer ' + ln_edgerc['ln_token'],
+            'Authorization': 'Bearer ' + ln_edgerc['linode_token'],
             'X-FILTER': '{"+and": [{"created": {"+gte": "' + ts_starttime + '"}}, {"created": {"+lte": "' + ts_endtime + '"}}] }'
         }
 
@@ -39,7 +39,7 @@ def audit(given_args=None, ln_edgerc=None):
                 'page_size': default_config.audit_page_size
             }
 
-            my_result = generic.api_request(method="GET", scheme="https://", url=ln_edgerc['ln_hostname'], path='/v4/account/events', params=my_params, headers=my_headers, payload=None, user_agent=user_agent)
+            my_result = generic.api_request(method="GET", scheme="https://", url=ln_edgerc['linode_hostname'], path='/v4/account/events', params=my_params, headers=my_headers, payload=None, user_agent=user_agent)
 
             for line in my_result['data']:
                 print(json.dumps(line))
