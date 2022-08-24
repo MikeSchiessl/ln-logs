@@ -23,7 +23,7 @@ time = time.time()
 
 my_headers={
     'Authorization': 'Bearer ' + token,
-    'X-FILTER': '{"created": {"+gte": "' + timestamp + '"}}'
+    'X-FILTER': '{"+and": [{"created": {"+gte": "' + timestamp + '"}}, {"created": {"+lte": "' + timestamp + '"}}] }'
 }
 
 

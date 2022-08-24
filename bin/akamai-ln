@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+
+## Based on https://guardicore.zendesk.com/hc/en-us/articles/360015818659-HOWTO-Network-Logs-API-Endpoint-Guide
+import sys
+
+import config.default_config as default_cfg
+import config.version as gc_version
+import modules.argsParser as args
+import modules.generic as generic
+import modules.aka_log as aka_log
+import modules.events as ln_events
+
+my_args = args.init()
+
+# Load the LOG system
+aka_log.init(my_args.loglevel, gc_version.__tool_name_short__)
+
+# Show Version
+if my_args.version:
+    generic.version()
+
+
+# Pre Flight checks
+try:
+    if my_args.event_action:
+        edgerc_data = generic.edgerc_reader(configfile=my_args.credentials_file,
+                              configsection=my_args.credentials_file_section,
+                              configvalues=["ln_token","ln_hostname"])
+except:
+    print(f"Try akamai-ln --help")
+    sys.exit()
+
+#try:
+if my_args.event_action == "audit":
+    ln_events.audit(given_args=my_args, ln_edgerc=edgerc_data)
+#except:
+    print(f"No - action given. Try akamai-ln --help")
+    sys.exit()
