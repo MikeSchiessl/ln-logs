@@ -2,6 +2,7 @@
 
 ## Based on https://guardicore.zendesk.com/hc/en-us/articles/360015818659-HOWTO-Network-Logs-API-Endpoint-Guide
 import sys
+import threading, signal
 
 import config.default_config as default_cfg
 import config.version as gc_version
@@ -10,29 +11,62 @@ import modules.generic as generic
 import modules.aka_log as aka_log
 import modules.events as ln_events
 
-my_args = args.init()
 
-# Load the LOG system
-aka_log.init(my_args.loglevel, gc_version.__tool_name_short__)
-
-# Show Version
-if my_args.version:
-    generic.version()
+stopEvent = threading.Event()
 
 
-# Pre Flight checks
-try:
-    if my_args.event_action:
-        edgerc_data = generic.edgerc_reader(configfile=my_args.credentials_file,
-                              configsection=my_args.credentials_file_section,
-                              configvalues=["linode_token","linode_hostname"])
-except:
-    print(f"Try akamai-ln --help")
-    sys.exit()
+def sigterm_handler(signum, frame):
+    """
+    Upon SIGTERM, we signal any other pending activities
+    to stop right away
+    """
+    aka_log.log.debug(f"SIGTERM ({signum}) detected, setting stopEvent")
+    stopEvent.set()
 
-#try:
-if my_args.event_action == "audit":
-    ln_events.audit(given_args=my_args, ln_edgerc=edgerc_data)
-#except:
-    print(f"No - action given. Try akamai-ln --help")
-    sys.exit()
+
+def control_break_handler():
+    """
+    Upon CTRL + C, we signal any other pending activities
+    to stop right away
+    """
+    aka_log.log.debug("Control+C detected, setting stopEvent")
+    stopEvent.set()
+
+def main():
+    signal.signal(signal.SIGTERM, sigterm_handler)
+
+    my_args = args.init()
+
+    # Load the LOG system
+    aka_log.init(my_args.loglevel, gc_version.__tool_name_short__)
+
+    # Show Version
+    if my_args.version:
+        generic.version()
+
+
+    # Pre Flight checks
+    try:
+        if my_args.event_action:
+            edgerc_data = generic.edgerc_reader(configfile=my_args.credentials_file,
+                                  configsection=my_args.credentials_file_section,
+                                  configvalues=["linode_token","linode_hostname"])
+    except:
+        print(f"Try akamai-ln --help")
+        sys.exit()
+
+    try:
+        if my_args.event_action == "audit":
+            ln_events.audit(given_args=my_args, ln_edgerc=edgerc_data)
+    except:
+        print(f"No - action given. Try akamai-ln --help")
+        sys.exit()
+
+    if stopEvent.is_set():
+        sys.exit(100)
+
+
+if __name__ == "__main__":
+    main()
+
+# EOF

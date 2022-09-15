@@ -9,15 +9,15 @@ import modules.generic as generic
 import config.default_config as default_config
 
 
-def audit(given_args=None, ln_edgerc=None):
-    starttime = given_args.event_starttime - default_config.audit_log_delay - default_config.audit_loop_time
-    endtime = given_args.event_endtime - default_config.audit_log_delay
+def get_log(given_args=None, ln_edgerc=None, config_lopp_time=None, config_log_delay=None, config_page_size=500, route='/', params={}):
+    starttime = given_args.event_starttime - config_log_delay - config_lopp_time
+    endtime = given_args.event_endtime - config_log_delay
     follow_mode = given_args.event_follow
     user_agent = given_args.ln_user_agent_prefix
 
 
     while True:
-        aka_log.log.debug(f"Netlog starttime: {starttime}, Endtime: {endtime}, follow mode: {follow_mode}")
+        aka_log.log.debug(f"Request starttime: {starttime}, Endtime: {endtime}, follow mode: {follow_mode}")
 
 
         ts_starttime = datetime.utcfromtimestamp(starttime).strftime('%Y-%m-%dT%H:%M:%S')
@@ -34,12 +34,11 @@ def audit(given_args=None, ln_edgerc=None):
         my_page = 1
         while walk_pages:
 
-            my_params = {
-                'page': my_page,
-                'page_size': default_config.audit_page_size
-            }
+            my_params = params
+            my_params['page'] = my_page
+            my_params['page_size'] = config_page_size
 
-            my_result = generic.api_request(method="GET", scheme="https://", url=ln_edgerc['linode_hostname'], path='/v4/account/events', params=my_params, headers=my_headers, payload=None, user_agent=user_agent)
+            my_result = generic.api_request(method="GET", scheme="https://", url=ln_edgerc['linode_hostname'], path=route, params=my_params, headers=my_headers, payload=None, user_agent=user_agent)
 
             for line in my_result['data']:
                 print(json.dumps(line))
@@ -51,7 +50,17 @@ def audit(given_args=None, ln_edgerc=None):
 
         if follow_mode:
             starttime = endtime
-            endtime = endtime + default_config.audit_loop_time
-            time.sleep(default_config.audit_loop_time)
+            endtime = endtime + config_lopp_time
+            time.sleep(config_lopp_time)
         else:
             break
+
+def audit(given_args=None, ln_edgerc=None):
+    get_log(given_args=given_args,
+            ln_edgerc=ln_edgerc,
+            config_lopp_time=default_config.audit_loop_time,
+            config_log_delay=default_config.audit_log_delay,
+            config_page_size=default_config.audit_page_size,
+            route="/v4/account/events")
+
+# EOF
