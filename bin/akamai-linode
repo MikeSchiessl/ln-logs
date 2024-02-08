@@ -4,8 +4,8 @@
 import sys
 import threading, signal
 
-import config.default_config as default_cfg
-import config.version as gc_version
+import ln_config.default_config as default_cfg
+import ln_config.version as gc_version
 import modules.argsParser as args
 import modules.generic as generic
 import modules.aka_log as aka_log

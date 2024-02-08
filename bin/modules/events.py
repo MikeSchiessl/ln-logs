@@ -6,7 +6,7 @@ import json
 
 import modules.aka_log as aka_log
 import modules.generic as generic
-import config.default_config as default_config
+import ln_config.default_config as default_config
 
 
 def get_log(given_args=None, ln_edgerc=None, config_lopp_time=None, config_log_delay=None, config_page_size=500, route='/', params={}):

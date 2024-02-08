@@ -4,8 +4,8 @@ import requests
 import os
 import sys
 import configparser
-import config.version as gc_version
-import config.default_config as default_config
+import ln_config.version as gc_version
+import ln_config.default_config as default_config
 import modules.aka_log as aka_log
 
 
