@@ -54,7 +54,7 @@ def init():
                         )
 
     # Commands
-    subparsers = parser.add_subparsers(help='sub-command help')
+    subparsers = parser.add_subparsers(dest='command', help='sub-command help')
 
     ## EVENTS
     parser_events = subparsers.add_parser(name="events", aliases="e", help=(f"Show {version.__tool_name_long__} events"))
@@ -69,12 +69,14 @@ def init():
     parser_events.add_argument('--start',
                                action='store',
                                dest='event_starttime',
+                               type=int,
                                default=int(time.time()),
                                help="Fetch events from $starttime (UNIX TIMESTAMP)")
 
     parser_events.add_argument('--end',
                                action='store',
                                dest='event_endtime',
+                               type=int,
                                default=int(time.time()),
                                help=''"Stop event collection at $endtime (UNIX TIMESTAMP)")
 
@@ -87,6 +89,18 @@ def init():
                                const=True,
                                help="Continuously follow (tail -f) the log")
 
+    ## UTILIZATION
+    parser_usage = subparsers.add_parser(name="utilization", aliases="u", help=(f"Show {version.__tool_name_long__} account utilization"))
+    parser_usage.add_argument('--include-stackscripts', action='store_true', dest="stackscripts", default=False, 
+                              help="Count also private stackscript (slow)")
+    parser_usage.add_argument('-f', '--follow',
+                               action='store',
+                               dest='follow',
+                               type=bool,
+                               nargs='?',
+                               default=False,
+                               const=True,
+                               help="Continuously print update every 5 minutes")
     #print(parser.parse_args())
     return parser.parse_args()
 
