@@ -60,7 +60,7 @@ def main():
     try:
         if my_args.command in ['events', 'e']:
             if my_args.event_action == "audit":
-                ln_events.audit(given_args=my_args, ln_edgerc=edgerc_data)
+                ln_events.audit(given_args=my_args, ln_edgerc=edgerc_data, stop_event=stopEvent)
             else:
                 print(f"No - action given. Try {cli_version.__tool_binary__} --help")
                 sys.exit()
