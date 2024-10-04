@@ -77,7 +77,7 @@ class linode_count(object):
         return resp_volumes.json().get('results')
 
 
-def stats_one(ln_edgerc, stackscripts: bool):
+def stats_one(ln_edgerc, stackscripts: bool = False):
 
     linode_api_headers = {
         'Authorization': 'Bearer ' + ln_edgerc['linode_token'],
@@ -106,6 +106,7 @@ def stats_one(ln_edgerc, stackscripts: bool):
 
     print(json.dumps(info), flush=True) # Flush to allow process pipelining like ULS
 
+
 def stats(ln_edgerc, stackscript: bool=False, follow=False, stop_event: threading.Event=None):
     if follow and stop_event:
         while not stop_event.isSet():
@@ -113,4 +114,4 @@ def stats(ln_edgerc, stackscript: bool=False, follow=False, stop_event: threadin
             stats_one(ln_edgerc, stackscript)
             stop_event.wait(follow_interval_sec - (time.time() - tick))
     else:
-        stats_one(ln_edgerc)
+        stats_one(ln_edgerc, stackscript)

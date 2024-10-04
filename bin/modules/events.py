@@ -21,6 +21,8 @@ def get_log(given_args=None, ln_edgerc=None, config_lopp_time=None, config_log_d
 
 
         ts_starttime = datetime.utcfromtimestamp(starttime).strftime('%Y-%m-%dT%H:%M:%S')
+        print(f"ts_starttime: {ts_starttime}")
+        #ts_starttime = datetime.datetime.formtimestamp(starttime, datetime.UTC)
         ts_endtime = datetime.utcfromtimestamp(endtime).strftime('%Y-%m-%dT%H:%M:%S')
 
 
@@ -33,13 +35,12 @@ def get_log(given_args=None, ln_edgerc=None, config_lopp_time=None, config_log_d
         walk_pages = True
         my_page = 1
         while walk_pages:
-
             my_params = params
             my_params['page'] = my_page
             my_params['page_size'] = config_page_size
 
             my_result = generic.api_request(method="GET", scheme="https://", url=ln_edgerc['linode_hostname'], path=route, params=my_params, headers=my_headers, payload=None, user_agent=user_agent)
-
+            print(f"my_result: {my_result}")
             for line in my_result['data']:
                 print(json.dumps(line))
 
