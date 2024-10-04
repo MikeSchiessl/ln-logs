@@ -4,7 +4,7 @@ import requests
 import os
 import sys
 import configparser
-import ln_config.version as gc_version
+import ln_config.version as cli_version
 import ln_config.default_config as default_config
 import modules.aka_log as aka_log
 
@@ -14,7 +14,7 @@ def version():
     Print this tools version #
     :return:
     """
-    print(gc_version.__version__)
+    print(cli_version.__version__)
     sys.exit(0)
 
 
@@ -43,7 +43,7 @@ def edgerc_reader(configfile, configsection, configvalues):
     # check for specified values
     for configvalue in configvalues:
         if not configvalue in config[configsection]:
-            aka_log.log.critical(f"Required configuration value '{configvalue}' not found in section  - Exiting")
+            aka_log.log.critical(f"Required configuration value '{configvalue}' not found in section [{configsection}] of {configfile} - Exiting")
             sys.exit(1)
         else:
             my_return[configvalue] = config.get(section=configsection, option=configvalue)
