@@ -5,9 +5,9 @@ import threading
 import time
 
 import modules.aka_log as aka_log
+import ln_config.default_config as default_config
 
-
-follow_interval_sec = 20
+#follow_interval_sec = default_config.utilization_loop_time
 
 class linode_count(object):
 
@@ -107,9 +107,9 @@ def stats_one(ln_edgerc, stackscripts: bool = False):
     print(json.dumps(info), flush=True) # Flush to allow process pipelining like ULS
 
 
-def stats(ln_edgerc, stackscript: bool=False, follow=False, stop_event: threading.Event=None):
+def stats(ln_edgerc, stackscript: bool=False, follow=False, stop_event: threading.Event=None, follow_interval_sec=default_config.utilization_loop_time):
     if follow and stop_event:
-        while not stop_event.isSet():
+        while not stop_event.is_set():
             tick = time.time()
             stats_one(ln_edgerc, stackscript)
             stop_event.wait(follow_interval_sec - (time.time() - tick))

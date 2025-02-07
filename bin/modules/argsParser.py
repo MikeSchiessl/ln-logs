@@ -97,6 +97,13 @@ def init():
                               default=False,
                               help="Count also private stackscript (slow)")
 
+    parser_usage.add_argument( '--refresh-time', '-t',
+                               action='store',
+                               type=int,
+                               dest='utilization_refresh_time',
+                               default=default_config.utilization_loop_time,
+                               help=f"The time to check for asset changes. Default: {default_config.utilization_loop_time}")
+
     parser_usage.add_argument('-f', '--follow',
                                action='store',
                                dest='follow',

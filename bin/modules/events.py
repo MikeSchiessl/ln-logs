@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import time
-from datetime import datetime
-import json
+from datetime import datetime, timezone
 import threading
 
 import modules.aka_log as aka_log
@@ -20,10 +19,15 @@ def get_log(given_args=None, ln_edgerc=None, config_lopp_time=None, config_log_d
         aka_log.log.debug(f"Request starttime: {starttime}, Endtime: {endtime}, follow mode: {follow_mode}")
         tick = time.time()
 
-        ts_starttime = datetime.utcfromtimestamp(starttime).strftime('%Y-%m-%dT%H:%M:%S')
+        #ts_starttime = datetime.utcfromtimestamp(starttime).strftime('%Y-%m-%dT%H:%M:%S')
+        ts_starttime = datetime.fromtimestamp(starttime, tz=None).strftime('%Y-%m-%dT%H:%M:%S')
+        aka_log.log.debug(f"ts_starttime: {ts_starttime}")
         #print(f"ts_starttime: {ts_starttime}")
         #ts_starttime = datetime.datetime.formtimestamp(starttime, datetime.UTC)
-        ts_endtime = datetime.utcfromtimestamp(endtime).strftime('%Y-%m-%dT%H:%M:%S')
+
+        #ts_endtime = datetime.utcfromtimestamp(endtime).strftime('%Y-%m-%dT%H:%M:%S')
+        ts_endtime = datetime.fromtimestamp(endtime, tz=None).strftime('%Y-%m-%dT%H:%M:%S')
+        aka_log.log.debug(f"ts_endtime: {ts_endtime}")
 
 
         my_headers = {

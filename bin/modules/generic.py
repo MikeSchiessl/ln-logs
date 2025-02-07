@@ -14,7 +14,7 @@ def version():
     Print this tools version #
     :return:
     """
-    print(cli_version.__version__)
+    print(f"{cli_version.__tool_name_long__} - {cli_version.__version__}")
     sys.exit(0)
 
 
