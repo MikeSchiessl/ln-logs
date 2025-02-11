@@ -16,3 +16,7 @@ audit_page_size = 100
 audit_log_delay = 600
 ### Loop time in seconds
 audit_loop_time = 60
+
+## Utilization
+### Loop time in seconds
+utilization_loop_time = 300

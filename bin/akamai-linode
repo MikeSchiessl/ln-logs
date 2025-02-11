@@ -60,12 +60,12 @@ def main():
     try:
         if my_args.command in ['events', 'e']:
             if my_args.event_action == "audit":
-                ln_events.audit(given_args=my_args, ln_edgerc=edgerc_data)
+                ln_events.audit(given_args=my_args, ln_edgerc=edgerc_data, stop_event=stopEvent)
             else:
                 print(f"No - action given. Try {cli_version.__tool_binary__} --help")
                 sys.exit()
         elif my_args.command in ['utilization', 'u']:
-            ln_utilization.stats(edgerc_data, my_args.stackscripts, my_args.follow, stopEvent)
+            ln_utilization.stats(ln_edgerc=edgerc_data, stackscript=my_args.stackscripts, follow=my_args.follow, stop_event=stopEvent, follow_interval_sec=my_args.utilization_refresh_time)
         else:
             print(f"No - command given. Try {cli_version.__tool_binary__} --help ")
             sys.exit()

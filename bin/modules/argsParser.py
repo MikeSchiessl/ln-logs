@@ -91,8 +91,19 @@ def init():
 
     ## UTILIZATION
     parser_usage = subparsers.add_parser(name="utilization", aliases="u", help=(f"Show {version.__tool_name_long__} account utilization"))
-    parser_usage.add_argument('--include-stackscripts', action='store_true', dest="stackscripts", default=False, 
+    parser_usage.add_argument('--include-stackscripts',
+                              action='store_true',
+                              dest="stackscripts",
+                              default=False,
                               help="Count also private stackscript (slow)")
+
+    parser_usage.add_argument( '--refresh-time', '-t',
+                               action='store',
+                               type=int,
+                               dest='utilization_refresh_time',
+                               default=default_config.utilization_loop_time,
+                               help=f"The time to check for asset changes. Default: {default_config.utilization_loop_time}")
+
     parser_usage.add_argument('-f', '--follow',
                                action='store',
                                dest='follow',
