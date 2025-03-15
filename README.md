@@ -2,7 +2,11 @@
 
 ## Getting started
 
-Create a READ-ONLY API Token in Cloud Manager.
+We recommend to use a separate user, dedicated to this CLI.
+
+Under the Linode user of your choice, create a READ-ONLY Linode API Token in Cloud Manager, with access to all scopes.  
+For more info check out [Manage personal access tokens](https://techdocs.akamai.com/cloud-computing/docs/manage-personal-access-tokens).
+
 Create an INI configuration file (by default we use `~/.edgerc`)
 
 ```INI
@@ -14,18 +18,18 @@ linode_token = XXXXXXXXXXXX       # Read-only permission suffices
 
 Please make sure you enter the hostname **without** any scheme (`http://` or `https://`)
 
-
 ## Usage
 
 ### Audit logs
-Setup the .edgerc file as described [here](#authentication)
+
+Setup the `.edgerc` file as described [here](#authentication)
 ```bash
 akamai-linode events audit --follow
 ```
 
 ### Objects utilization
 ```
-akamai-linode utilization --follow
+akamai-linode utilization --include-stackscripts --follow
 ```
 
 In follow mode, it will print the different counters by object type from your account.  
@@ -35,6 +39,12 @@ Example:
     "time": "2024-10-03T18:40:25.164050+00:00", 
     "account": "My company name", 
     "linode": 25, 
+    "image": {
+        "private_count": 9,
+        "private_size": 52438,
+        "private_total_size": 179251,
+        "total": 90
+    },
     "lke_cluster": 0, 
     "vpc": 1, 
     "vlan": 0, 
