@@ -17,6 +17,10 @@ class linode_count(object):
     def __init__(self, api_headers):
         self.api_headers = api_headers
 
+    def domains(self):
+        resp_domains = requests.get(f'{linode_count.LINODE_API}/domains', headers=self.api_headers)
+        return resp_domains.json().get('results')
+
     def instances(self):
         resp_instances = requests.get(f'{linode_count.LINODE_API}/linode/instances', headers=self.api_headers)
         return resp_instances.json().get('results')
@@ -102,27 +106,40 @@ class linode_count(object):
         return resp_volumes.json().get('results')
 
 
-def stats_one(ln_edgerc, stackscripts: bool = False):
+def stats_one(ln_edgerc, stackscripts: bool=False):
+
+    api_token = ln_edgerc.get('linode_token')
+    if not api_token:
+        aka_log.log.fatal("API Token not found or empty in EdgeRC file.")
+        exit(1)
 
     linode_api_headers = {
-        'Authorization': 'Bearer ' + ln_edgerc['linode_token'],
+        'Authorization': 'Bearer ' + api_token,
     }
 
     account_info = requests.get('https://api.linode.com/v4/account', headers=linode_api_headers)
+    if account_info.status_code != 200:
+        aka_log.log.fatal(f"Can't fetch Linode account info with provided API token {api_token[:4]}...{api_token[-4:]}. "
+                          f"Ensure API scope are set properly. API HTTP/{account_info.status_code}")
+        exit(1)
     company = account_info.json().get('company')
 
     c = linode_count(linode_api_headers)
-    info = {}
-    map_key_function = {
-        "linode": c.instances,
-        "lke_cluster": c.lkes,
-        "vpc": c.vpcs,
-        "vlan": c.vlans,
-        "cloud_firewall": c.cloudfws,
-        "node_balancer": c.nodebalancers,
-        "object_storage": c.object_storage,
-        "volume": c.volumes,
-        "image": c.images
+
+
+    info = {
+        # for consistency, keep key as a singular word
+        "time": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "account": company,
+        "linode": c.instances(),
+        "lke_cluster": c.lkes(),
+        "vpc": c.vpcs(),
+        "vlan": c.vlans(),
+        "cloud_firewall": c.cloudfws(),
+        "node_balancer": c.nodebalancers(),
+        "object_storage": c.object_storage(),
+        "volume": c.volumes(),
+        "domain": c.domains()
     }
     if stackscripts:
         map_key_function["stackscript"] = c.stackscripts
