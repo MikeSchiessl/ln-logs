@@ -3,6 +3,7 @@ import json
 import requests
 import threading
 import time
+import concurrent.futures
 
 import modules.aka_log as aka_log
 import ln_config.default_config as default_config
@@ -15,6 +16,10 @@ class linode_count(object):
 
     def __init__(self, api_headers):
         self.api_headers = api_headers
+
+    def domains(self):
+        resp_domains = requests.get(f'{linode_count.LINODE_API}/domains', headers=self.api_headers)
+        return resp_domains.json().get('results')
 
     def instances(self):
         resp_instances = requests.get(f'{linode_count.LINODE_API}/linode/instances', headers=self.api_headers)
@@ -43,6 +48,30 @@ class linode_count(object):
     def object_storage(self):
         resp_os = requests.get(f'{linode_count.LINODE_API}/object-storage/buckets', headers=self.api_headers)
         return resp_os.json().get('results')
+
+    def images(self):
+        stats = {
+            "private_count": 0, # number of private images
+            "private_size": 0, # sum of all the private original images
+            "private_total_size": 0 # sum of all replicas for all images
+        }
+        pages = []
+        pages.append(requests.get(f'{linode_count.LINODE_API}/images',
+                                  headers=self.api_headers).json())
+        stats['total'] = pages[0].get('results')
+        total_pages = pages[0].get('pages', 1)
+        if total_pages > 1:
+            for page in range(2, total_pages):
+                pages.append(requests.get(f'{linode_count.LINODE_API}/images', 
+                                          params={'page': page}, 
+                                          headers=self.api_headers).json())
+        for p in pages:
+            for i in p.get('data', []):
+                if i.get('is_public') is False and i.get('expiry') is None:
+                    stats['private_count'] += 1
+                    stats['private_size'] += i.get('size')
+                    stats['private_total_size'] += i.get('total_size')
+        return stats
 
     def stackscripts(self):
         page_size = 500 # Reduce chances to get HTTP/429 too many requests
@@ -77,32 +106,59 @@ class linode_count(object):
         return resp_volumes.json().get('results')
 
 
-def stats_one(ln_edgerc, stackscripts: bool = False):
+def stats_one(ln_edgerc, stackscripts: bool=False):
+
+    api_token = ln_edgerc.get('linode_token')
+    if not api_token:
+        aka_log.log.fatal("API Token not found or empty in EdgeRC file.")
+        exit(1)
 
     linode_api_headers = {
-        'Authorization': 'Bearer ' + ln_edgerc['linode_token'],
+        'Authorization': 'Bearer ' + api_token,
     }
 
     account_info = requests.get('https://api.linode.com/v4/account', headers=linode_api_headers)
+    if account_info.status_code != 200:
+        aka_log.log.fatal(f"Can't fetch Linode account info with provided API token {api_token[:4]}...{api_token[-4:]}. "
+                          f"Ensure API scope are set properly. API HTTP/{account_info.status_code}")
+        exit(1)
     company = account_info.json().get('company')
 
     c = linode_count(linode_api_headers)
 
+    # output dict
     info = {
-        # for consistency, keep key as a singular word
         "time": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "account": company,
-        "linode": c.instances(),
-        "lke_cluster": c.lkes(),
-        "vpc": c.vpcs(),
-        "vlan": c.vlans(),
-        "cloud_firewall": c.cloudfws(),
-        "node_balancer": c.nodebalancers(),
-        "object_storage": c.object_storage(),
-        "volume": c.volumes(),
     }
+    # mapping between key - which will be added into info dict above
+    # and the function to call asynchronously to fill the data.
+    map_key_function = {
+        "linode": c.instances,
+        "lke_cluster": c.lkes,
+        "vpc": c.vpcs,
+        "vlan": c.vlans,
+        "cloud_firewall": c.cloudfws,
+        "node_balancer": c.nodebalancers,
+        "object_storage": c.object_storage,
+        "volume": c.volumes,
+        "image": c.images
+    }
+
     if stackscripts:
-        info["stackscript"] = c.stackscripts()
+        map_key_function["stackscript"] = c.stackscripts
+
+    def fetch_for_output_dict(key, func):
+        return key, func()
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        future_to_key = {}
+        for key, func in map_key_function.items():
+            future = executor.submit(fetch_for_output_dict, key, func)
+            future_to_key[future] = key
+        for future in concurrent.futures.as_completed(future_to_key):
+            key, result = future.result()
+            info[key] = result
 
     print(json.dumps(info), flush=True) # Flush to allow process pipelining like ULS
 
