@@ -126,21 +126,25 @@ def stats_one(ln_edgerc, stackscripts: bool=False):
 
     c = linode_count(linode_api_headers)
 
-
+    # output dict
     info = {
-        # for consistency, keep key as a singular word
         "time": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "account": company,
-        "linode": c.instances(),
-        "lke_cluster": c.lkes(),
-        "vpc": c.vpcs(),
-        "vlan": c.vlans(),
-        "cloud_firewall": c.cloudfws(),
-        "node_balancer": c.nodebalancers(),
-        "object_storage": c.object_storage(),
-        "volume": c.volumes(),
-        "domain": c.domains()
     }
+    # mapping between key - which will be added into info dict above
+    # and the function to call asynchronously to fill the data.
+    map_key_function = {
+        "linode": c.instances,
+        "lke_cluster": c.lkes,
+        "vpc": c.vpcs,
+        "vlan": c.vlans,
+        "cloud_firewall": c.cloudfws,
+        "node_balancer": c.nodebalancers,
+        "object_storage": c.object_storage,
+        "volume": c.volumes,
+        "image": c.images
+    }
+
     if stackscripts:
         map_key_function["stackscript"] = c.stackscripts
 
