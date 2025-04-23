@@ -1,8 +1,8 @@
-# akamai-linode CLI
+# Akamai Linode (LOGGING) CLI
 
 ## Getting started
 
-We recommend to use a separate user, dedicated to this CLI.
+We recommend to use a separate (api) user, dedicated to this CLI.
 
 Under the Linode user of your choice, create a READ-ONLY Linode API Token in Cloud Manager, with access to all scopes.  
 For more info check out [Manage personal access tokens](https://techdocs.akamai.com/cloud-computing/docs/manage-personal-access-tokens).

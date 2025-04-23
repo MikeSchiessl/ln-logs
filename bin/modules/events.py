@@ -7,6 +7,9 @@ import threading
 import modules.aka_log as aka_log
 import modules.generic as generic
 import ln_config.default_config as default_config
+import pytz
+import json
+from pyasn1.type.useful import UTCTime
 
 
 def get_log(given_args=None, ln_edgerc=None, config_lopp_time=None, config_log_delay=None, config_page_size=500, route='/', params={}, stop_event: threading.Event=None):
@@ -20,20 +23,30 @@ def get_log(given_args=None, ln_edgerc=None, config_lopp_time=None, config_log_d
         tick = time.time()
 
         #ts_starttime = datetime.utcfromtimestamp(starttime).strftime('%Y-%m-%dT%H:%M:%S')
-        ts_starttime = datetime.fromtimestamp(starttime, tz=None).strftime('%Y-%m-%dT%H:%M:%S')
+        ts_starttime = datetime.fromtimestamp(starttime, tz=pytz.utc).strftime('%Y-%m-%dT%H:%M:%S')
         aka_log.log.debug(f"ts_starttime: {ts_starttime}")
         #print(f"ts_starttime: {ts_starttime}")
         #ts_starttime = datetime.datetime.formtimestamp(starttime, datetime.UTC)
 
         #ts_endtime = datetime.utcfromtimestamp(endtime).strftime('%Y-%m-%dT%H:%M:%S')
-        ts_endtime = datetime.fromtimestamp(endtime, tz=None).strftime('%Y-%m-%dT%H:%M:%S')
+        ts_endtime = datetime.fromtimestamp(endtime, tz=pytz.utc).strftime('%Y-%m-%dT%H:%M:%S')
         aka_log.log.debug(f"ts_endtime: {ts_endtime}")
 
 
         my_headers = {
             'Authorization': 'Bearer ' + ln_edgerc['linode_token'],
-            'X-FILTER': '{"+and": [{"created": {"+gte": "' + ts_starttime + '"}}, {"created": {"+lte": "' + ts_endtime + '"}}] }'
         }
+
+        if not given_args.event_verbs:
+            aka_log.log.debug(f"no additional verbs given, not filtering at all !")
+            my_headers.update({'X-FILTER': '{"+and": [{"created": {"+gte": "' + ts_starttime + '"}}, {"created": {"+lte": "' + ts_endtime + '"}}] }'})
+
+        elif given_args.event_verbs:
+            aka_log.log.debug(f"Filtering verbs given, creating a filter list")
+            verb_filter_list = []
+            for verb in list(given_args.event_verbs.split(',')):
+                verb_filter_list.append('{"action": "' + verb + '"}')
+            my_headers.update({"X-FILTER": '{"+and": [{"created": {"+gte": "' + ts_starttime + '"}}, {"created": {"+lte": "' + ts_endtime + '"}}, {"+or": [' + ', '.join(verb_filter_list) + ' ]}] }'})
 
         # Walk pages
         walk_pages = True

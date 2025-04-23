@@ -13,7 +13,7 @@ max_auth_attempts = 3
 ### events per page
 audit_page_size = 100
 ### Delay from $now to ensure 100% of logs are received on the backend (time in seconds)
-audit_log_delay = 600
+audit_log_delay = 90
 ### Loop time in seconds
 audit_loop_time = 60
 
