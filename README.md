@@ -28,6 +28,7 @@ akamai-linode events audit --follow
 ```
 
 ### Objects utilization
+
 ```
 akamai-linode utilization --include-stackscripts --follow
 ```
@@ -36,9 +37,28 @@ In follow mode, it will print the different counters by object type from your ac
 Example:
 ```json
 {
-    "time": "2024-10-03T18:40:25.164050+00:00", 
+    "time": "2025-08-11T23:15:44.531463+00:00", 
     "account": "My company name", 
-    "linode": 25, 
+    "linode": 3605, 
+    "linode_details": {
+        "by_region": {
+        "in-maa": 394,
+        "se-sto": 913,
+        "de-fra-2": 694,
+        "us-iad": 226,
+        "jp-osa": 263,
+        "br-gru": 741,
+        "sg-sin-2": 561,
+        "us-lax": 208
+        },
+        "by_type": {
+        "g6-standard-4": 468,
+        "g6-standard-8": 266,
+        "g6-standard-2": 546,
+        "g6-nanode-1": 2474,
+        "g6-standard-1": 246
+        }
+    },
     "image": {
         "private_count": 9,
         "private_size": 52438,
