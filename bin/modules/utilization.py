@@ -121,7 +121,7 @@ class linode_count(object):
         total_pages = pages[0].get('pages', 1)
         if total_pages > 1:
             for page in range(2, total_pages):
-                pages.append(self.api_client('/images', params={'page': page}))
+                pages.append(self.api_client.get('/images', params={'page': page}))
         for p in pages:
             for i in p.get('data', []):
                 if i.get('is_public') is False and i.get('expiry') is None:
@@ -164,6 +164,11 @@ class linode_count(object):
 
 
 def stats_one(ln_edgerc, stackscripts: bool = False):
+    api_token = ln_edgerc.get('linode_token')
+    if not api_token:
+        aka_log.log.fatal("API Token not found or empty in EdgeRC file.")
+        exit(1)
+
     linode_api_headers = {
         'Authorization': 'Bearer ' + api_token,
     }
