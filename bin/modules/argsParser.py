@@ -59,7 +59,7 @@ def init():
     ## EVENTS
     parser_events = subparsers.add_parser(name="events", aliases="e", help=(f"Show {version.__tool_name_long__} events"))
 
-    ### NETLOG
+    ### AUDIT
     parser_events.add_argument(dest="event_action",
                                 choices=['audit'],
                                action='store',
@@ -88,6 +88,13 @@ def init():
                                default=False,
                                const=True,
                                help="Continuously follow (tail -f) the log")
+
+    parser_events.add_argument('--verbs',
+                               action='store',
+                               dest='event_verbs',
+                               type=str,
+                               default=[],
+                               help="Provide a list of verbs to filter the events for (only include above verbs). Exmaple: \'--verbs token_create,token_delete\'")
 
     ## UTILIZATION
     parser_usage = subparsers.add_parser(name="utilization", aliases="u", help=(f"Show {version.__tool_name_long__} account utilization"))

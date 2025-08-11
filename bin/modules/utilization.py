@@ -41,6 +41,10 @@ class linode_count(object):
     def __init__(self, api_headers):
         self.api_client = linode_api_client(api_headers)
 
+    def domains(self):
+        resp_domains = requests.get(f'{linode_count.LINODE_API}/domains', headers=self.api_headers)
+        return resp_domains.json().get('results')
+
     def instances(self):
         resp_instances = self.api_client.get('/linode/instances')
         return resp_instances.json().get('results')
@@ -159,11 +163,9 @@ class linode_count(object):
         return resp_volumes.json().get('results')
 
 
-
 def stats_one(ln_edgerc, stackscripts: bool = False):
-
     linode_api_headers = {
-        'Authorization': 'Bearer ' + ln_edgerc['linode_token'],
+        'Authorization': 'Bearer ' + api_token,
     }
     api_client = linode_api_client(linode_api_headers)
 
