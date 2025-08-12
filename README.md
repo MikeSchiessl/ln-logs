@@ -27,18 +27,40 @@ Setup the `.edgerc` file as described [here](#authentication)
 akamai-linode events audit --follow
 ```
 
-### Objects utilization
+### Entities utilization
+
 ```
 akamai-linode utilization --include-stackscripts --follow
 ```
 
-In follow mode, it will print the different counters by object type from your account.  
-Example:
+Will print the different counters by object type from your account.  
+With the `--follow` argument, the command will refresh every 5 minutes until you SIG_INT / press Control-Break.
+
+Output example:
 ```json
 {
-    "time": "2024-10-03T18:40:25.164050+00:00", 
+    "time": "2025-08-11T23:15:44.531463+00:00", 
     "account": "My company name", 
-    "linode": 25, 
+    "linode": 3605, 
+    "linode_details": {
+        "by_region": {
+            "in-maa": 394,
+            "se-sto": 913,
+            "de-fra-2": 694,
+            "us-iad": 226,
+            "jp-osa": 263,
+            "br-gru": 741,
+            "sg-sin-2": 561,
+            "us-lax": 208
+        },
+        "by_type": {
+            "g6-standard-4": 468,
+            "g6-standard-8": 266,
+            "g6-standard-2": 546,
+            "g6-nanode-1": 2474,
+            "g6-standard-1": 246
+        }
+    },
     "image": {
         "private_count": 9,
         "private_size": 52438,
@@ -58,4 +80,4 @@ Example:
 
 Note the last counter, `stackscript` will be reported only when using `--include-stackscripts` argument is added to the command line.
 
-To send these events into your SIEM, please checkout [Akamai Unified Log Streamer](https://github.com/akamai/uls)
+To send these events into your SIEM i.e. Splunk, please checkout [Akamai Unified Log Streamer](https://github.com/akamai/uls)
