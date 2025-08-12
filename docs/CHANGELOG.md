@@ -1,4 +1,7 @@
 # Changelog
+## 0.0.7 (20250812)
+- A couple of improvements on the "Utilization" - thx @bitonio
+- 
 
 ## 0.0.6 (20250526)
 - Fixed a missing requirement (pyasn1)
