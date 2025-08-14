@@ -121,7 +121,7 @@ class linode_count(object):
         total_pages = pages[0].get('pages', 1)
         if total_pages > 1:
             for page in range(2, total_pages):
-                pages.append(self.api_client.get('/images', params={'page': page}))
+                pages.append(self.api_client.get('/images', params={'page': page}).json())
         for p in pages:
             for i in p.get('data', []):
                 if i.get('is_public') is False and i.get('expiry') is None:
