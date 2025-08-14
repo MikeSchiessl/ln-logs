@@ -1,4 +1,8 @@
 # Changelog
+## 0.0.8 (20250814)
+- Resolved a bug in the Utilization part - thx @bitonio
+- Fixed a bug in the audit logging
+
 ## 0.0.7 (20250812)
 - A couple of improvements on the "Utilization" - thx @bitonio
 
