@@ -30,10 +30,27 @@ class linode_api_client(object):
         self.session.mount(linode_api_client.LINODE_API, adapter)
 
     def get(self, url_path, params=None, **kwargs):
-        return self.session.get(
+        response = self.session.get(
             f'{linode_api_client.LINODE_API}{url_path}', 
             params=params,
             headers=self.api_headers)
+        return response
+    
+    def current_limit(self):
+        response = self.get('/profile')
+        if response:
+            aka_log.log.warning(f"X-RateLimit-Limit: {response.headers['X-RateLimit-Limit']}")
+            aka_log.log.warning(f"X-RateLimit-Remaining: {response.headers['X-RateLimit-Remaining']}")
+            aka_log.log.warning(f"X-RateLimit-Reset: {response.headers['X-RateLimit-Reset']}")
+            aka_log.log.warning(f"Retry-After: {response.headers['Retry-After']}")
+
+        return {
+            "username": response.json().get('username'),
+            "email": response.json().get('email'),
+            "limit": int(response.headers['X-RateLimit-Limit']),
+            "remaining": int(response.headers['X-RateLimit-Remaining']),
+            "reset": int(response.headers['X-RateLimit-Reset'])
+        }
 
 
 class linode_count(object):
@@ -42,7 +59,7 @@ class linode_count(object):
         self.api_client = linode_api_client(api_headers)
 
     def domains(self):
-        resp_domains = requests.get(f'{linode_count.LINODE_API}/domains', headers=self.api_headers)
+        resp_domains = self.api_client.get('/domains')
         return resp_domains.json().get('results')
 
     def instances(self):
@@ -200,7 +217,8 @@ def stats_one(ln_edgerc, stackscripts: bool = False):
         "node_balancer": c.nodebalancers,
         "object_storage": c.object_storage,
         "volume": c.volumes,
-        "image": c.images
+        "image": c.images,
+        "current_user": api_client.current_limit
     }
     if stackscripts:
         map_key_function["stackscript"] = c.stackscripts
