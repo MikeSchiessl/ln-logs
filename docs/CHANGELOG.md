@@ -1,4 +1,7 @@
 # Changelog
+## 0.0.9 (20260520)
+- Added current user info (bitonio)
+
 ## 0.0.8 (20250814)
 - Resolved a bug in the Utilization part - thx @bitonio
 - Fixed a bug in the audit logging
