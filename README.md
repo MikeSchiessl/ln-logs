@@ -39,8 +39,15 @@ With the `--follow` argument, the command will refresh every 5 minutes until you
 Output example:
 ```json
 {
-    "time": "2025-08-11T23:15:44.531463+00:00", 
+    "time": "2026-03-11T23:15:44.531463+00:00", 
     "account": "My company name", 
+    "current_user": {
+        "username": "jane_doe",
+        "email": "jdoe@example.com",
+        "limit": 1840,
+        "remaining": 1839,
+        "reset": 1775503155,
+    },
     "linode": 3605, 
     "linode_details": {
         "by_region": {
